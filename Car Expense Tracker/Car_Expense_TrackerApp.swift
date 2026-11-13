@@ -7,15 +7,17 @@
 
 import SwiftUI
 import CoreData
+import SwiftData
 
 @main
 struct Car_Expense_TrackerApp: App {
-    let persistenceController = PersistenceController.shared
+  
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .modelContainer(for: [CarItem.self, ExpenseCreatorClass.self])
+              
         }
     }
 }

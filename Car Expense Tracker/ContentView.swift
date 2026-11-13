@@ -5,82 +5,91 @@
 //  Created by Suraj Srivastava on 10/27/26.
 //
 
-import SwiftUI
 import CoreData
+import SwiftData
+import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+    @Environment(\.modelContext) var context
+
+    @Query var carItems: [CarItem] = []
+    @Query var expenseItems: [ExpenseCreatorClass] = []
+
+    @State var creater = false
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+        NavigationStack {
+
+            VStack {
+                
+            
+                
+
+                HStack {
+
+                    Spacer()
+                    Text("Car Expense Tracker")
+                     .font(.custom("Times", size: 35))
+
+                    Spacer()
+                    Button {
+                        creater = true
                     } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                        Image(systemName: "plus")
+                            .resizable()
+                            .frame(width: 30, height: 30)
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    .navigationDestination(isPresented: $creater) {
+                        CreateCarView()
                     }
+
+                    Spacer()
+                }
+                
+                
+                ZStack{
+                   
+                    
+                    List {
+                        ForEach(0..<carItems.count, id: \.self) { i in
+                            HStack{
+                                NavigationLink(
+                                    carItems[i].name,
+                                    destination: CarView(
+                                        expenseObjects: expenseItems,
+                                        carItem: carItems[i]
+                                    )
+                                )
+                                Text(" Purchased:")
+                                Text(carItems[i].purchaseDate, format: .dateTime.day().month().year())
+                                
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    
+                    if(carItems.count == 0){
+                        Spacer()
+                        Spacer()
+                        Spacer()
+                        Text("Press the plus to add a car")
+                         .font(.custom("Times", size: 25))
+                            .offset(x: 0, y: 20)
+                    }
+                    
                 }
             }
-            Text("Select an item")
+
         }
+
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ContentView()
 }

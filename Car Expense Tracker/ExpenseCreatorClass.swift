@@ -6,20 +6,23 @@
 //
 
 import Foundation
+import SwiftData
 
 
-
-class ExpenseCreatorView{
+@Model
+class ExpenseCreatorClass{
     
     var carName:String
     var espenseAmount:Double
+    var uid = UUID()
+    var forWhat = ""
+    var date:Date
     
-    
-    
-    
-    init(carName: String, espenseAmount: Double) {
+    init(carName: String, espenseAmount: Double, forWhat: String, date: Date) {
         self.carName = carName
         self.espenseAmount = espenseAmount
+        self.forWhat = forWhat
+        self.date = date 
     }
     
     
